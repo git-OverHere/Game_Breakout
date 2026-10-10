@@ -1,0 +1,15 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "debug",
+            "description": "CMake preset for debugging the project.",
+            "hidden": false,
+            "generator": "MinGW Makefiles",
+            "binaryDir": "${sourceDir}/debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        }
+    ]
+}
