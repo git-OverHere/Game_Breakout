@@ -1,10 +1,17 @@
-# Setting up
+# Setting Up
 
--VSCode IntelliSense (Ctrl + Shift + P => C/C++: Select IntelliSense Configuration => Use gcc.exe)
--Create src/ folder for all source files (.cpp)
--Create external/ folder and paste all external library dependancies like glad, GLFW ...
--Create include/ folder for placing all your class .h
--Create CMakeLists.txt
--Create CMakePresets.json
--Run build & debug on vscode to generate .vscode/tasks.json
--Add custom build & run task
+1. Configure VS Code IntelliSense:
+   - Press `Ctrl + Shift + P`
+   - Select `C/C++: Select IntelliSense Configuration`
+   - Choose `gcc.exe`
+
+2. Create the following directories:
+   - `src/` — All source files (`.cpp`)
+   - `external/` — External library dependencies (GLAD, GLFW, etc.)
+   - `include/` — Class header files (`.h`)
+
+3. Create `CMakeLists.txt` and `CMakePresets.json`.
+
+4. Run Build & Debug in VS Code to generate `.vscode/tasks.json`.
+
+5. Add custom build and run tasks.
