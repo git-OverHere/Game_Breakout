@@ -2,8 +2,14 @@
 
 #include "Core/ResourceManager.h"
 #include "Core/SpriteRenderer.h"
+#include "Engine/GameObject.h"
 
 Core::SpriteRenderer *Renderer;
+
+// define player
+const glm::vec2 PLAYER_SIZE(100.0f, 20.0f);
+const float PLAYER_VELOCITY(500.0f);
+Engine::GameObject *Player;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_ACTIVE), Keys(), Width(width), Height(height)
@@ -30,6 +36,14 @@ void Game::Init()
     Core::ResourceManager::LoadTexture("assets/textures/background.jpg", false, "background");
     Core::ResourceManager::LoadTexture("assets/textures/block.png", false, "block");
     Core::ResourceManager::LoadTexture("assets/textures/block_solid.png", false, "block_solid");
+    Core::ResourceManager::LoadTexture("assets/textures/paddle.png", true, "paddle");
+    // load player
+    glm::vec2 playerPos = glm::vec2(
+        this->Width / 2.0f - PLAYER_SIZE.x / 2.0f,
+        this->Height - PLAYER_SIZE.y
+    );
+    Core::Texture2D paddle = Core::ResourceManager::GetTexture("paddle");
+    Player = new Engine::GameObject(playerPos, PLAYER_SIZE, paddle);
     // load levels
     Engine::GameLevel one; one.Load("assets/levels/standard.lvl", this->Width, this->Height / 2);
     Engine::GameLevel two; two.Load("assets/levels/small_gaps.lvl", this->Width, this->Height / 2);
@@ -62,5 +76,7 @@ void Game::Render()
             glm::vec2(this->Width, this->Height), 0.0f);
         // draw level
         this->Levels[this->Level].Draw(*Renderer);
+        // draw player paddle
+        Player->Draw(*Renderer);
     }
 }
