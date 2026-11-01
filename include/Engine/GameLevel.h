@@ -1,3 +1,5 @@
+#pragma once
+
 #include "Engine/GameObject.h"
 #include "Core/SpriteRenderer.h"
 
