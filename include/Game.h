@@ -44,4 +44,7 @@ class Game
         void Update(float dt);
         void Render();
         void DoCollisions();
+        // reset on ball out of bounds
+        void ResetLevel();
+        void ResetPlayer();
 };
