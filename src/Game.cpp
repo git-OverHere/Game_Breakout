@@ -5,6 +5,9 @@
 #include "Engine/GameObject.h"
 #include "Engine/BallObject.h"
 #include "Engine/cc.h"
+#include "Engine/ParticleGenerator.h"
+
+#include <vector>
 
 
 Core::SpriteRenderer *Renderer;
@@ -17,7 +20,8 @@ Engine::GameObject *Player;
 const glm::vec2 INITIAL_BALL_VELOCITY(100.0f, -350.0f);
 const float BALL_RADIUS = 12.5f;
 Engine::BallObject *Ball;
-
+// define the particle
+Engine::ParticleGenerator *Particles;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_ACTIVE), Keys(), Width(width), Height(height)
@@ -31,11 +35,14 @@ void Game::Init()
     // load shaders
     Core::ResourceManager::LoadShader("assets/shaders/vertex/sprite_renderer.vs",
         "assets/shaders/fragment/sprite_renderer.fs", "sprite");
+    Core::ResourceManager::LoadShader("assets/shaders/vertex/particle_renderer.vs",
+        "assets/shaders/fragment/particle_renderer.fs", "particle");
     // configure shaders
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width),
         static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
     Core::ResourceManager::GetShader("sprite").use().setInt("image", 0);
     Core::ResourceManager::GetShader("sprite").setMat4("projection", 1, false, projection);
+    Core::ResourceManager::GetShader("particle").use().setMat4("projection", 1, false, projection);
     // set render-specific controls
     Core::Shader shader = Core::ResourceManager::GetShader("sprite");
     Renderer = new Core::SpriteRenderer(shader);
@@ -45,6 +52,7 @@ void Game::Init()
     Core::ResourceManager::LoadTexture("assets/textures/block.png", false, "block");
     Core::ResourceManager::LoadTexture("assets/textures/block_solid.png", false, "block_solid");
     Core::ResourceManager::LoadTexture("assets/textures/paddle.png", true, "paddle");
+    Core::ResourceManager::LoadTexture("assets/textures/particle.png", true, "particle");
     // load player
     glm::vec2 playerPos = glm::vec2(
         this->Width / 2.0f - PLAYER_SIZE.x / 2.0f,
@@ -58,6 +66,12 @@ void Game::Init()
                                                 -BALL_RADIUS * 2.0f);
     Ball = new Engine::BallObject(ballPos, BALL_RADIUS, INITIAL_BALL_VELOCITY,
                                     Core::ResourceManager::GetTexture("face"));                                            
+    // load particle    
+    Particles = new Engine::ParticleGenerator(
+        Core::ResourceManager::GetShader("particle"),
+        Core::ResourceManager::GetTexture("particle"),
+        500
+    );
     // load levels
     Engine::GameLevel one; one.Load("assets/levels/standard.lvl", this->Width, this->Height / 2);
     Engine::GameLevel two; two.Load("assets/levels/small_gaps.lvl", this->Width, this->Height / 2);
@@ -74,6 +88,7 @@ void Game::Update(float dt)
 {
     Ball->Move(dt, this->Width);
     this->DoCollisions();
+    Particles->Update(dt, *Ball, 2, glm::vec2(Ball->Radius / 2.0f));
     if (Ball->Position.y >= this->Height)
     {
         this->ResetLevel();
@@ -123,6 +138,7 @@ void Game::Render()
         this->Levels[this->Level].Draw(*Renderer);
         // draw player paddle
         Player->Draw(*Renderer);
+        Particles->Draw();
         Ball->Draw(*Renderer);
     }
 }
