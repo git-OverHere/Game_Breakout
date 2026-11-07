@@ -1,6 +1,9 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <chrono>
+#include <thread>
+
 #include "Game.h"
 #include "Core/ResourceManager.h"
 
@@ -13,6 +16,10 @@ const unsigned int SCREEN_WIDTH = 800;
 const unsigned int SCREEN_HEIGHT = 600;
 
 Game Breakout(SCREEN_WIDTH, SCREEN_HEIGHT);
+
+const unsigned int FPS_LIMIT = 250;
+const double FRAME_TIME = 1.0f / FPS_LIMIT;
+const bool LIMIT_FPS = true;
 
 int main() 
 {
@@ -57,6 +64,8 @@ int main()
 
     while (!glfwWindowShouldClose(window))
     {
+        auto frameStart = std::chrono::steady_clock::now();
+
         // calculate delta time
         // --------------------
         float currentFrame = glfwGetTime();
@@ -79,6 +88,19 @@ int main()
         Breakout.Render();
 
         glfwSwapBuffers(window);
+
+        // FPS limitier
+        if (LIMIT_FPS)
+        {
+            auto frameEnd = std::chrono::steady_clock::now();
+            std::chrono::duration<double> elapsed = frameEnd - frameStart;
+            if (elapsed.count() < FRAME_TIME)
+            {
+                std::this_thread::sleep_for(
+                    std::chrono::duration<double>(FRAME_TIME - elapsed.count())
+                );
+            }
+        }
     }
     
     // delete all resources as loaded using the resource manager
