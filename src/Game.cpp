@@ -6,6 +6,7 @@
 #include "Engine/BallObject.h"
 #include "Engine/cc.h"
 #include "Engine/ParticleGenerator.h"
+#include "Core/PostProcessor.h"
 
 #include <vector>
 
@@ -22,13 +23,22 @@ const float BALL_RADIUS = 12.5f;
 Engine::BallObject *Ball;
 // define the particle
 Engine::ParticleGenerator *Particles;
+// define the post processor
+Core::PostProcessor *Effects;
+float ShakeTime = 0.0f;
 
 Game::Game(unsigned int width, unsigned int height)
     : State(GAME_ACTIVE), Keys(), Width(width), Height(height)
 {}
 
 Game::~Game()
-{}
+{
+    delete Renderer;
+    delete Player;
+    delete Ball;
+    delete Particles;
+    delete Effects;
+}
 
 void Game::Init()
 {
@@ -37,6 +47,8 @@ void Game::Init()
         "assets/shaders/fragment/sprite_renderer.fs", "sprite");
     Core::ResourceManager::LoadShader("assets/shaders/vertex/particle_renderer.vs",
         "assets/shaders/fragment/particle_renderer.fs", "particle");
+    Core::ResourceManager::LoadShader("assets/shaders/vertex/post_processor.vs",
+        "assets/shaders/fragment/post_processor.fs", "postprocessing");
     // configure shaders
     glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(this->Width),
         static_cast<float>(this->Height), 0.0f, -1.0f, 1.0f);
@@ -72,6 +84,8 @@ void Game::Init()
         Core::ResourceManager::GetTexture("particle"),
         500
     );
+    // load effects
+    Effects = new Core::PostProcessor(Core::ResourceManager::GetShader("postprocessing"), this->Width, this->Height);
     // load levels
     Engine::GameLevel one; one.Load("assets/levels/standard.lvl", this->Width, this->Height / 2);
     Engine::GameLevel two; two.Load("assets/levels/small_gaps.lvl", this->Width, this->Height / 2);
@@ -93,6 +107,14 @@ void Game::Update(float dt)
     {
         this->ResetLevel();
         this->ResetPlayer();
+    }
+    if (ShakeTime > 0.0f)
+    {
+        ShakeTime -= dt;
+        if (ShakeTime <= 0.0f)
+        {
+            Effects->Shake = false;
+        }
     }
 }
 
@@ -130,6 +152,7 @@ void Game::Render()
 {
     if (this->State == GAME_ACTIVE)
     {
+        Effects->BeginRender();
         // draw background
         Core::Texture2D background = Core::ResourceManager::GetTexture("background");
         Renderer->DrawSprite(background, glm::vec2(0.0f, 0.0f), 
@@ -139,7 +162,10 @@ void Game::Render()
         // draw player paddle
         Player->Draw(*Renderer);
         Particles->Draw();
+        // draw ball
         Ball->Draw(*Renderer);
+        Effects->EndRender();
+        Effects->Render(glfwGetTime());
     }
 }
 
@@ -153,6 +179,11 @@ void Game::DoCollisions()
         if (!box.IsSolid) 
         {
             box.Destroyed = true;
+        }
+        else
+        {   // if block is solid, enable shake effect
+            ShakeTime = 0.05f;
+            Effects->Shake = true;
         }
         // collision resolution
         Direction dir = std::get<1>(collision);
