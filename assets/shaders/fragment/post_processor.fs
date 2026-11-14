@@ -40,7 +40,7 @@ void main()
     {
         for (int i = 0; i < 9; i++)
         {
-            coor += vec4(sample[i] * blur_kernel[i], 0.0f);
+            color += vec4(sample[i] * blur_kernel[i], 0.0f);
         }
         color.a = 1.0f;
     }
