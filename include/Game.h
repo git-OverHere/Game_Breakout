@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "Engine/GameLevel.h"
+#include "Engine/PowerUp.h"
 
 enum GameState {
     GAME_ACTIVE,
@@ -33,6 +34,8 @@ class Game
         // level state
         std::vector<Engine::GameLevel> Levels;
         unsigned int Level;
+        // powerups
+        std::vector<Engine::PowerUp> PowerUps;
 
         // constructor/deconstructor
         Game(unsigned int width, unsigned int height);
@@ -47,4 +50,7 @@ class Game
         // reset on ball out of bounds
         void ResetLevel();
         void ResetPlayer();
+        // Powerup spawner
+        void SpawnPowerUps(Engine::GameObject &block);
+        void UpdatePowerUps(float dt);
 };

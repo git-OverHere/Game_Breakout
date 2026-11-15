@@ -24,14 +24,10 @@ Texture2D::Texture2D()
   }
 }
 
-void Texture2D::Generate(unsigned int width, unsigned int height, unsigned char* data, unsigned int nrChannels, bool flip)
+void Texture2D::Generate(unsigned int width, unsigned int height, unsigned char* data, unsigned int nrChannels)
 {
   this->Width = width;
   this->Height = height;
-  if (flip)
-  {
-    stbi_set_flip_vertically_on_load(true);
-  }
   if (data == nullptr)
   {
     std::cerr << "ERROR::TEXTURE_GENERATION: Invalid data received during generation." << std::endl;

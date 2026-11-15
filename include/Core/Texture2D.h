@@ -28,7 +28,7 @@ namespace Core
     // Default constructor (Change default texture config here)
     Texture2D();
 
-    void Generate(unsigned int width, unsigned int height, unsigned char* data, unsigned int nrChannels, bool flip = false);
+    void Generate(unsigned int width, unsigned int height, unsigned char* data, unsigned int nrChannels);
     // binds the texture as the current active GL_TEXTURE_2D
     void Bind() const;
 
